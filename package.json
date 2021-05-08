@@ -5,9 +5,9 @@
   "author": "designC",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node index.js",
     "client": "cd client && yarn start",
-    "server": "nodemon server.js",
+    "server": "nodemon index.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
   "dependencies": {
