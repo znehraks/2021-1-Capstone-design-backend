@@ -29,19 +29,22 @@ def scrapper(center_lat,
              right_lon):
     url = f"https://m.land.naver.com/cluster/clusterList?view=atcl&rletTpCd=OR&tradTpCd=A1%3AB1%3AB2%3AB3&z=15&lat={center_lat}&lon={center_lon}&btm={btm_lat}&lft={left_lon}&top={top_lat}&rgt={right_lon}&pCortarNo="
 
-    sys.stdout.reconfigure(encoding='utf-8')
-    chrome_options = Options()
-    chrome_options.add_experimental_option(
-        "excludeSwitches", ["enable-logging"])
-    driver = webdriver.Chrome(
-        executable_path=".\\chromedriver.exe", options=chrome_options)
+    # sys.stdout.reconfigure(encoding='utf-8')
+    # chrome_options = Options()
+    # chrome_options.add_experimental_option(
+    #     "excludeSwitches", ["enable-logging"])
+    # driver = webdriver.Chrome(
+    #     executable_path=".\\chromedriver.exe", options=chrome_options)
 
-    driver.get(url)
-    html = driver.page_source
-    soup = BeautifulSoup(html, "lxml")
-    site_json = json.loads(soup.find("body").text)
-    driver.close()
-
+    header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+              'Referer': 'https://m.land.naver.com/'}
+    # driver.get(url)
+    # html = driver.page_source
+    # soup = BeautifulSoup(html, "lxml")
+    # site_json = json.loads(soup.find("body").text)
+    # driver.close()
+    res = requests.get(url, headers=header)
+    site_json = json.loads(res.text)
     return site_json
 
     # bs4 만 쓸 경우 - Selenium 미 사용 시(단, Response 307 뜸)

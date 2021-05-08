@@ -14,7 +14,7 @@ import io
 import sys
 from operator import itemgetter
 from haversine import haversine
-
+import math
 # 먼저 학교 이름으로 학교의 중심 위도,경도를 알아오기
 
 
@@ -298,25 +298,42 @@ def get_final_weight(T1, T2, T3, T4, T5, w1, w2, w3, w4, w5):
     for i in range(0, len(sorted_T1)):
         res.append({
             "lgeo": sorted_T1[i]["lgeo"],
-            "T1": sorted_T1[i]["T1_weight"]*float(w1)/100,
-            "T2": sorted_T2[i]["T2_weight"]*float(w2)/100,
-            "T3": sorted_T3[i]["T3_weight"]*float(w3)/100,
-            "T4": sorted_T4[i]["T4_weight"]*float(w4)/100,
-            "T5": sorted_T5[i]["T5_weight"]*float(w5)/100,
-            "total_weight":
-                sorted_T1[i]["T1_weight"]*float(w1)/100 +
-                sorted_T2[i]["T2_weight"]*float(w2)/100 +
-                sorted_T3[i]["T3_weight"]*float(w3)/100 +
-                sorted_T4[i]["T4_weight"]*float(w4)/100 +
-                sorted_T5[i]["T5_weight"]*float(w5)/100,
+            "T1": round(sorted_T1[i]["T1_weight"]*float(w1)/100),
+            "T2": round(sorted_T2[i]["T2_weight"]*float(w2)/100),
+            "T3": round(sorted_T3[i]["T3_weight"]*float(w3)/100),
+            "T4": round(sorted_T4[i]["T4_weight"]*float(w4)/100),
+            "T5": round(sorted_T5[i]["T5_weight"]*float(w5)/100),
+            "total_weight": round(sorted_T1[i]["T1_weight"]*float(w1)/100 +
+                                  sorted_T2[i]["T2_weight"]*float(w2)/100 +
+                                  sorted_T3[i]["T3_weight"]*float(w3)/100 +
+                                  sorted_T4[i]["T4_weight"]*float(w4)/100 +
+                                  sorted_T5[i]["T5_weight"]*float(w5)/100),
             "lat": sorted_T1[i]["lat"],
             "lon": sorted_T1[i]["lon"],
         })
     # total 내림차순으로 sorting함
+    res_2 = []
     res_sorted = sorted(res, key=itemgetter('total_weight'), reverse=True)
-
+    for index, i in enumerate(res_sorted):
+        res_2.append({
+            "rank": index+1,
+            "lgeo": i["lgeo"],
+            "T1": i["T1"],
+            "T2": i["T2"],
+            "T3": i["T3"],
+            "T4": i["T4"],
+            "T5": i["T5"],
+            # "fixed_T1": round(i["T1"]*(100/i["total_weight"]), 1),
+            # "fixed_T2": round(i["T2"]*(100/i["total_weight"]), 1),
+            # "fixed_T3": round(i["T3"]*(100/i["total_weight"]), 1),
+            # "fixed_T4": round(i["T4"]*(100/i["total_weight"]), 1),
+            # "fixed_T5": round(i["T5"]*(100/i["total_weight"]), 1),
+            "total_weight": i["total_weight"],
+            "lat": i["lat"],
+            "lon": i["lon"],
+        })
     #
-    return res_sorted
+    return res_2
 
 # TOP3 골라서 이 주변 정보들 가져옴
 
@@ -339,25 +356,25 @@ def filter_top5(total):
 # 안씀 address_json = find_address(sys.argv[1])
 # 안씀 (univ_lon, univ_lat) = get_address_json(address_json)
 
-univ_name = sys.argv[1]
-univ_lat = float(sys.argv[2])
-univ_lon = float(sys.argv[3])
-limit_dist = float(sys.argv[4])
-w1 = sys.argv[5]
-w2 = sys.argv[6]
-w3 = sys.argv[7]
-w4 = sys.argv[8]
-w5 = sys.argv[9]
+# univ_name = sys.argv[1]
+# univ_lat = float(sys.argv[2])
+# univ_lon = float(sys.argv[3])
+# limit_dist = float(sys.argv[4])
+# w1 = sys.argv[5]
+# w2 = sys.argv[6]
+# w3 = sys.argv[7]
+# w4 = sys.argv[8]
+# w5 = sys.argv[9]
 
-# univ_name = "한성대학교"
-# univ_lat = 37.5825084
-# univ_lon = 127.0102929
-# limit_dist = 1795
-# w1 = "25.5"
-# w2 = "30"
-# w3 = "5"
-# w4 = "20"
-# w5 = "19.5"
+univ_name = "한성대학교"
+univ_lat = 37.5825084
+univ_lon = 127.0102929
+limit_dist = 1795
+w1 = "25.5"
+w2 = "30"
+w3 = "5"
+w4 = "20"
+w5 = "19.5"
 
 refined_residence = get_residence_address(univ_lon, univ_lat)
 T1 = cal_T1(refined_residence, univ_lon, univ_lat, limit_dist)
