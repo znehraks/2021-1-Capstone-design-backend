@@ -7,6 +7,8 @@ const router = require("./router");
 const port = process.env.PORT || 5000;
 const connection = require("./connection");
 const { spawn } = require("child_process");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 //크롤링 및 분석 후에 최종 res.send로 프론트에 전달해야 함.
 //json parsing하는데에 변수가 많음.
 
@@ -92,6 +94,45 @@ app.post("/add_eval", (req, res) => {
     console.log(err);
   });
 });
+
+app.post("/signup", (req, res) => {
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(req.body.user_pwd, salt, (err, hash) => {
+      let sql = `INSERT INTO user (user_id, user_pwd, user_email) values('${req.body.user_id}','${hash}', '${req.body.user_email}')`;
+      connection.query(sql, (err, rows, fields) => {
+        res.send(rows);
+        console.log(err);
+      });
+    });
+  });
+});
+
+app.post("/signin", (req, res) => {
+  let sql = "SELECT * FROM user WHERE user_id = ?";
+  connection.query(sql, req.body.user_id, (err, user, fields) => {
+    if (err) return res.json(err);
+    if (!user)
+      return res.json({
+        loginSuccess: false,
+        message: "ID에 해당하는 유저가 없습니다.",
+      });
+    const isSame = bcrypt.compareSync(req.body.user_pwd, user[0].user_pwd);
+    if (isSame) {
+      // 로그인 성공 토큰 생성 추후 config로 암호화 필요
+      let token = jwt.sign(user[0].user_id, "secretToken");
+      res.cookie("user", token).status(200).json({
+        loginSuccess: true,
+        userId: user[0].user_id,
+      });
+    } else {
+      return res.json({
+        loginSuccess: false,
+        message: "비밀번호가 틀렸습니다",
+      });
+    }
+  });
+});
+
 app.listen(port, () =>
   console.log(`Example app listening on port 
 ${port}!`)
